@@ -4,6 +4,7 @@ import { useAccount, WagmiProvider, createConfig, http, useConnect, useDisconnec
 import { immutableZkEvmTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
 
 export const passportInstance = new passport.Passport({
   baseConfig: {
@@ -40,8 +41,10 @@ function Content() {
   const { address } = useAccount()
   const { connectors, connect } = useConnect()
   const { disconnect } = useDisconnect()
+  const [state, setState] = useState('disconnected')
 
   async function login() {
+    setState('logging in...')
     for (const connector of connectors) {
       if (connector.name.includes('Immutable Passport')) {
         connect({ connector })
@@ -50,16 +53,17 @@ function Content() {
   }
 
   async function logout() {
+    setState('logging out...')
     disconnect()
     await passportInstance.logout()
-    alert('Logged out')
+    setState('disconnected')
   }
 
   return (
   <div>
     <button onClick={login}>Login</button><br/>
     <button onClick={logout}>Logout</button><br/>
-    <p>{address ? `Connected as ${address}` : 'Not logged in'}</p>
+    <p>{address ? `Connected as ${address}` : state}</p>
   </div>)
 }
 
